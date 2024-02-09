@@ -77,7 +77,8 @@ $$
 ### 2b) 
 Note that $P(A_i, A_j) = P(A_i)P(A_j|A_i)$. The latter probability just needs to account for the fact there is one fewer treatment assignment slot in the group of $A_i$, and also 1 fewer subject to randomize. Using this, we complete the following contingency table to specify the joing distribution of $(A_i, A_j)$ for $i \neq j$
 
-:::{.callout-note title="Answer"}
+
+
 \begin{table}[h]
 \centering
 \begin{tabular}{c|c|c|c|c}
@@ -89,7 +90,8 @@ $A_i$ & $A_j$ & $P(A_i)$ & $P(A_j|A_i)$ & $P(A_i, P_j)$ \\
 0 & 0 & $\frac{n-m}{n}$ & $\frac{n-m-1}{n-1}$ & $\frac{(n-m)(n-m-1)}{n(n-1)}$ 
 \end{tabular}
 \end{table}
-:::
+
+
 
 ### 2c)
 
@@ -209,7 +211,7 @@ P(X = x) =\frac{{4 \choose x}{4 \choose 4-x}}{{8 \choose 4}}
 $$
 Plugging in values of $x \in \{0, 1, 2, 3, 4\}$ we have that 
 
-:::{.callout-note title="Answer"}
+
 \begin{table}[h]
 \centering
 \begin{tabular}{Sc|Sc}
@@ -222,7 +224,7 @@ Cups of Tea Correct ($x$) & $P(X = x)$ \\
 4 & $\frac{1}{70}$ 
 \end{tabular}
 \end{table}
-:::
+
 
 
 
@@ -238,7 +240,6 @@ It could also be the case that there are other factors not shown in Table 1 whic
 
 ### 5b) 
 
-:::{.callout-note title="Answer"}
 \begin{table}[h]
 \centering
 \begin{tabular}{|Sc|Sc|Sc|Sc|}
@@ -258,7 +259,7 @@ It could also be the case that there are other factors not shown in Table 1 whic
 \hline                       
 \end{tabular}
 \end{table}
-:::
+
 
 ### 5c) 
 
