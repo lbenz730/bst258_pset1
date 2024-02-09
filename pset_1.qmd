@@ -1,0 +1,454 @@
+---
+title: "Problem Set #1"
+subtitle: "BST 258: Causal Inference -- Theory and Practice"
+author: "Luke Benz"
+date: "`r Sys.Date()`"
+execute:
+  message: false
+  warning: false
+include-in-header: 
+  preamble.Tex
+format:
+  pdf:
+    documentclass: scrartcl
+    papersize: letter
+    fontsize: 11pt
+    geometry:
+      - margin=1in
+      - heightrounded
+    number-sections: false
+    colorlinks: true
+    link-citations: true
+    callout-appearance: simple
+    callout-icon: false
+    # figure options
+    fig-width: 8
+    fig-height: 4.5
+    fig-cap-location: bottom
+    # code block options
+    code-line-numbers: false
+    code-block-bg: false
+    highlight-style: gruvbox
+bibliography: "`r here::here('refs.bib')`"
+---
+
+```{r}
+#| echo: false
+#| message: false
+#| label: global-setup
+# NOTE: The immediately following line loads an renv environment located at the
+#       nearest "top-level" directory, as marked by a `.here` file, which is
+#       located by the here::here() function. This would be a useful tool if,
+#       say, this template.qmd file was not located at the top-level directory.
+#       Here, renv should activate automatically when this file is opened.
+#renv::load(here::here())
+library(here)
+library(tidyverse)
+theme_set(theme_bw() +
+            theme(plot.title = element_text(hjust = 0.5, size = 24),
+                  plot.subtitle = element_text(hjust = 0.5, size = 18),
+                  axis.title = element_text(size = 20),
+                  strip.text = element_text(size = 14),
+                  plot.caption = element_text(size = 10),
+                  legend.position = "bottom"))
+```
+
+:::{.callout-note title="GitHub URL"}
+Please find my GitHub reporistory at https://github.com/lbenz730/bst258_pset1
+:::
+
+## Question 1
+Thank you for these resources. 
+
+
+## Question 2
+### 2a) 
+
+:::{.callout-note title="Answer"}
+
+$$
+\begin{aligned}
+P(A = 1) &= \frac{m}{n} \\
+P(A = 0) &= \frac{n-m}{n} = 1 - \frac{m}{n} \\
+\end{aligned}
+$$
+:::
+
+### 2b) 
+Note that $P(A_i, A_j) = P(A_i)P(A_j|A_i)$. The latter probability just needs to account for the fact there is one fewer treatment assignment slot in the group of $A_i$, and also 1 fewer subject to randomize. Using this, we complete the following contingency table to specify the joing distribution of $(A_i, A_j)$ for $i \neq j$
+
+:::{.callout-note title="Answer"}
+\begin{table}[h]
+\centering
+\begin{tabular}{c|c|c|c|c}
+$A_i$ & $A_j$ & $P(A_i)$ & $P(A_j|A_i)$ & $P(A_i, P_j)$ \\
+\hline
+1 & 1 & $\frac{m}{n}$ & $\frac{m-1}{n-1}$ & $\frac{m(m-1)}{n(n-1)}$ \\
+1 & 0 & $\frac{m}{n}$ & $\frac{n-m}{n-1}$ & $\frac{m(n-m)}{n(n-1)}$ \\
+0 & 1 & $\frac{n-m}{n}$ & $\frac{m}{n-1}$ & $\frac{m(n-m)}{n(n-1)}$ \\
+0 & 0 & $\frac{n-m}{n}$ & $\frac{n-m-1}{n-1}$ & $\frac{(n-m)(n-m-1)}{n(n-1)}$ 
+\end{tabular}
+\end{table}
+:::
+
+### 2c)
+
+:::{.callout-note title="Variance"}
+Note that since $A_i$ is binary $\mathbb{E}[A_i^2] = \mathbb{E}[A_i]$. Then we have 
+
+$$
+\begin{aligned}
+\var(A_i) &= \mathbb{E}[A_i^2] - \mathbb{E}[A_i]^2 \\ 
+&= \mathbb{E}[A_i] - \mathbb{E}[A_i]^2 \\ 
+&= \frac{m}{n} - \frac{m^2}{n^2} \\ 
+&= \frac{m(n-m)}{n^2}
+\end{aligned}
+$$
+:::
+
+:::{.callout-note title="Covariance"}
+For the covariance calculation, note that $\mathbb{E}[A_iA_j] = P(A_i = 1, A_j = 1) = \frac{m(m-1)}{n(n-1)}$ from above.
+
+$$
+\begin{aligned}
+\cov(A_i, A_j) &= \mathbb{E}[A_iA_j] - \mathbb{E}[A_i]\mathbb{E}[A_j] \\ 
+&= \frac{m(m-1)}{n(n-1)} - \frac{m^2}{n^2} \\ 
+&= \frac{nm(m-1) - m^2(n-1)}{n^2(n-1)} \\ 
+&= \frac{nm^2 - nm - nm^2 + m^2}{n^2(n-1)} \\
+&= \frac{m(m-n)}{n^2(n-1)} \\
+\end{aligned}
+$$
+:::
+
+### 2d) 
+
+:::{.callout-note title="Answer"}
+$$
+\begin{aligned}
+\mathbb{E}\bigr[\theta^\text{ATT}\bigr] &= \mathbb{E}\biggr[\frac{1}{m}\sum_{i = 1}^n A_i(Y_i^1 - Y_i^0)\biggr] \\
+&= \frac{1}{m}\sum_{i = 1}^m \mathbb{E}[A_i(Y_i^1 - Y_i^0)] \\
+&= \frac{1}{m}\sum_{i = 1}^m (Y_i^1 - Y_i^0)\mathbb{E}[A_i] \\
+&= \frac{1}{m}\sum_{i = 1}^m (Y_i^1 - Y_i^0)\times\frac{m}{n} \\
+&= \frac{1}{n}\sum_{i = 1}^m (Y_i^1 - Y_i^0) \\
+&= \theta^\text{ATE}
+\end{aligned}
+$$
+In expectation, the sample ATT equals the sample ATE.
+:::
+
+## Question 3
+
+First, we establish the following identities
+$$
+\begin{aligned}
+\mathbb{E}[Y_i(1)] &= \frac{1}{n}\sum_{i = 1}^n Y_i(1) \\
+&= \frac{1}{n}\sum_{i = 1}^n \biggr(Y_i(0) + \theta\biggr) \\
+&= \mathbb{E}[Y_i(0)] + \theta
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+\mathbb{E}[Y_i(1)^2] &= \frac{1}{n}\sum_{i = 1}^n Y_i(1)^2 \\
+&= \frac{1}{n}\sum_{i = 1}^n \biggr(Y_i(0) + \theta\biggr)^2 \\
+&= \frac{1}{n}\sum_{i = 1}^n \biggr(Y_i(0)^2 + 2\theta Y_i(0) +  \theta^2\biggr) \\
+&= \mathbb{E}[Y_i(0)^2] +  2\theta\mathbb{E}[Y_i(0)] + \theta^2
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+\mathbb{E}[Y_i(0)Y_i(1)] &= \sum_{i = 1}^n Y_i(0)Y_i(1) \\
+&= \sum_{i = 1}^n [Y_i(1) - \theta]Y_i(1) \\
+&= \sum_{i = 1}^n \biggr(Y_i(1)^2 - \theta Y_i(1)\biggr) \\
+&= \mathbb{E}[Y_i(1)^2] - \theta\mathbb{E}[Y_i(1)]
+\end{aligned}
+$$
+
+
+:::{.callout-note title="Answer"}
+Putting these together we have that 
+
+$$
+\begin{aligned}
+\var[Y_i(1)] &= \mathbb{E}[Y_i(1)^2] - \mathbb{E}[Y_i(1)]^2 \\
+&= \mathbb{E}[Y_i(0)^2] +  2\theta\mathbb{E}[Y_i(0)] + \theta^2 - \biggr(\mathbb{E}[Y_i(0)] + \theta\biggr)^2 \\
+&= \mathbb{E}[Y_i(0)^2] +  2\theta\mathbb{E}[Y_i(0)] + \theta^2 - \biggr(\mathbb{E}[Y_i(0)]^2 +  2\theta\mathbb{E}[Y_i(0)]\theta^2\biggr) \\
+&= \mathbb{E}[Y_i(0)^2]- \mathbb{E}[Y_i(0)]^2 \\
+&= \var[Y_i(0)]
+\end{aligned}
+$$
+
+
+$$
+\begin{aligned}
+\cov\biggr(Y_i(0), Y_i(1)\biggr) &= \mathbb{E}[Y_i(0)Y_i(1)] - \mathbb{E}[Y_i(0)]\mathbb{E}[Y_i(1)] \\
+&= \mathbb{E}[Y_i(1)^2] - \theta\mathbb{E}[Y_i(1)] - \biggr(\mathbb{E}[Y_i(1)] - \theta\biggr)\mathbb{E}[Y_i(1)] \\
+&= \mathbb{E}[Y_i(1)^2] - \mathbb{E}[Y_i(1)]^2 \\
+&= \var[Y_i(1)]
+\end{aligned}
+$$
+Thus we have that 
+$$
+\begin{aligned}
+\rho\biggr(Y_i(1), Y_i(0)\biggr) &= \frac{\cov\biggr(Y_i(0), Y_i(1)\biggr)}{\sqrt{\var[Y_i(0)]\var[Y_i(1)]}} \\
+&= \frac{\var[Y_i(1)]}{\sqrt{\var[Y_i(1)]\var[Y_i(1)]}} \\
+&= \frac{\var[Y_i(1)]}{\var[Y_i(1)]} \\
+&= 1
+\end{aligned}
+$$
+:::
+
+
+## Question 4
+
+We have $N = 8$ cups of team, $T = 4$ of which have tea poured first and $M = 4$ of which have milk poured first. Under randomly guessing which cups had tea poured first, the number of correct guesses $X \sim \hypg(8, 4, 4)$ with PMF
+
+$$
+P(X = x) =\frac{{4 \choose x}{4 \choose 4-x}}{{8 \choose 4}}
+$$
+Plugging in values of $x \in \{0, 1, 2, 3, 4\}$ we have that 
+
+:::{.callout-note title="Answer"}
+\begin{table}[h]
+\centering
+\begin{tabular}{Sc|Sc}
+Cups of Tea Correct ($x$) & $P(X = x)$ \\
+\hline
+0 & $\frac{1}{70}$ \\
+1 & $\frac{16}{70}$ \\
+2 & $\frac{36}{70}$ \\
+3 & $\frac{16}{70}$ \\
+4 & $\frac{1}{70}$ 
+\end{tabular}
+\end{table}
+:::
+
+
+
+## Question 5
+### 5a) 
+:::{.callout-note title="Answer"}
+We notice that despite treatment $A$ being superior to treatment $B$ within each stone size strata, the overall success rate is higher for treatment $B$. Upon closer examination, we notice that a much larger percentage of subjects on treatment $B$ have small stones than on treatment $A$. Furthermore, we notice that for both treatments, small stones  have higher success rates than do larger stones. 
+
+It's clear that these patients were not randomized to treatment assignment (otherwise we'd expect closer balance of stone size between arms). It could be the case that treatment $B$ is the standard course of action for those presenting with small stones, while treatment $A$ is more likely given to patients with large stones. 
+
+It could also be the case that there are other factors not shown in Table 1 which impact both treatment assignments and outcome success rate. Perhaps for example men are more likely to get large stones and also treatment $A$ (maybe pregnant women are exlcuded from treatment $A$), and it's easier to treat stones in men then women. This is entirely hypothetical, but shows that additional covariates which affect both treatment AND outcome are important to keep in mind for explaining the discrepancy in our data.
+:::
+
+### 5b) 
+
+:::{.callout-note title="Answer"}
+\begin{table}[h]
+\centering
+\begin{tabular}{|Sc|Sc|Sc|Sc|}
+\multicolumn{1}{l}{\textbf{Stone Size}} & \multicolumn{1}{l}{\textbf{Gender}} & \multicolumn{1}{l}{\textbf{Treatment $A$}} & \multicolumn{1}{l}{\textbf{Treatment $B$}} \\ 
+\hline
+\multirow{3}{*}{\centering Small} & Male   & 94\% (79/84)   & 95\% (95/100)  \\
+& Female & 67\% (2/3)     & 82\% (139/170) \\
+& Both   & 93\% (81/87)   & 87\% (234/270) \\
+\hline
+\multirow{3}{*}{\centering Large} & Male   & 81\% (100/123) & 100 \% (4/4)   \\
+& Female & 66\% (92/140)  & 67\% (51/76)   \\
+& Both   & 73\% (192/263) & 69\% (55/80)   \\
+\hline
+\multirow{3}{*}{\centering Both}  & Male   & 87\% (179/207) & 95\% (99/104)  \\
+& Female & 66\% (94/143)  & 77\% (190/246) \\
+& Both   & 78\% (273/350) & 83\% (289/350) \\
+\hline                       
+\end{tabular}
+\end{table}
+:::
+
+### 5c) 
+
+:::{.callout-note title="Answer"}
+Some people may refer to this as Simpson's paradox, but it's also an example of confounding. What's important is that we can't readily compare two treatments as is (i.e. without considering other factors) if data are not randomized. Moreover, our colleague stratified by gender, but had they stratified by yet another variable, perhaps the effect would've flipped again. In other words, there is no knowledge of all variables that confounding the treament-outcome relationship. In general, the implication is that confounding is hard to deal with and we must take care in addressing the potential of confounding when comparing outcomes between various treatments.
+:::
+
+## Question 6
+
+First, I'll set up some useful functions.
+```{r}
+### Function to sample data
+###
+## n = n0 + n1
+## mu = vector of group means
+## sigma2 = vector of group variances
+## p = prob[A = 1]
+sample_data <- function(n, mu, sigma2, p) {
+  Y0 <- rnorm(n, mu[1], sqrt(sigma2[1]))
+  Y1 <- rnorm(n, mu[2], sqrt(sigma2[2]))
+  A <- rbinom(n, 1, p)
+  Y <- ifelse(A == 1, Y1, Y0)
+  df <- tibble('Y' = Y,
+               'A' = A)
+  return(df)
+}
+
+### Function to run permutation test (returns p-value)
+##
+## Y vector of outcomes
+## A vector of treatments
+## B = # of permutations to run
+perm_test <- function(Y, A, B) {
+  ### Observed test statistics
+  t_obs <- abs(mean(Y[A == 1]) - mean(Y[A == 0]))
+  
+  ### Null distribution 
+  t_sim <- rep(NA, B) 
+  for(b in 1:B) {
+    A_sim <- sample(A) 
+    t_sim[b] <- abs(mean(Y[A_sim == 1]) - mean(Y[A_sim == 0]))
+  }
+  
+  ### 2-Sided p-value
+  p_value <- mean(t_sim >= t_obs)
+  
+  return(p_value)
+}
+
+### Function to compute weak/sharp null p-value on a simulated dataset
+###
+### df = sampled dataset of A,Y
+### B = permutation test dataset
+
+compute_pvalues <- function(df, B) {
+  ### Permutation test (for sharp null)
+  p_sharp <- perm_test(Y = df$Y, A = df$A, B = B)
+  
+  ### Testing Weak Null based on normal approximation
+  ate_hat <- mean(df$Y[df$A == 1]) - mean(df$Y[df$A == 0]) 
+  var_hat <- var(df$Y[df$A == 1])/sum(df$A == 1) + var(df$Y[df$A == 1])/sum(df$A == 0)
+  p_weak <- 2 * pnorm(q = -abs(ate_hat), mean = 0, sd = sqrt(var_hat), lower.tail = T)
+  
+  return(list('p_weak' = p_weak, 'p_sharp' = p_sharp))
+}
+```
+
+Next, we'll run the simulation, leveraging parallel processing from the `furrr` package in `R`.
+
+```{r}
+library(tidyverse)
+library(furrr)
+plan(multisession(workers = parallel::detectCores() - 1))
+
+### Set simulation parameters
+set.seed(73097)
+n1 <- c(10, 25, 50, 100, 250) ### n1 and n0
+n0 <- c(10, 25, 50, 100, 250) ### n1 and n0
+n <- n1 + n0
+n_sims <- 1000
+
+### Run simulation
+df_power <- 
+  tibble('n' = n,
+         'power_weak' = NA,
+         'power_sharp' = NA)
+
+
+for(i in 1:length(n)) {
+  ### Simulate all datasets in one go
+  simulated_dfs <- 
+    map(1:n_sims, ~{
+      sample_data(n = n[i], mu = c(0, 1/10), sigma2 = c(1/16, 1/16), p = 0.5)
+    })
+  
+  ### Get all p_values in one go
+  df_pvalues <- 
+    future_map_dfr(simulated_dfs, ~compute_pvalues(df = .x, B = 10000),
+                   .options = furrr_options(seed = 73091))
+  
+  ### Compute Power
+  df_power$power_sharp[i] <- mean(df_pvalues$p_sharp <= 0.05)
+  df_power$power_weak[i] <- mean(df_pvalues$p_weak <= 0.05)
+}
+
+```
+
+Finally, we plot the results.
+
+```{r}
+df_plot <- 
+  df_power %>% 
+  pivot_longer(cols = contains('power'),
+               names_to = 'hypothesis',
+               values_to = 'power',
+               names_prefix = 'power_') %>% 
+  mutate('hypothesis' = paste(tools::toTitleCase(hypothesis), 'Null'))
+
+ggplot(df_plot, aes(x = n, y = power)) + 
+  geom_point(aes(color = hypothesis)) + 
+  geom_line(aes(color = hypothesis)) + 
+  labs(x = 'n',
+       y = 'Power',
+       color = 'Hypothesis',
+       title = 'Comparison of Power Between\nWeak and Sharp Null')
+  
+```
+
+:::{.callout-note title="Answer Summary"}
+Because Fisher's Null implies Neyman's Null, we might hyopothesize that rejection of $H_0^\text{weak}$ implies rejection of $H_0^\text{sharp}$. However, we see via simulations that this is not the case. For small values of $n$ the power against $H_0^\text{weak}$ is actually slightly higher than $H_0^\text{sharp}$, suggesting that evidence against the weak null need not imply evidence against the sharp null.For larger values of $n$, the power of these two tests is essentially identical.
+
+At first, this result seems somewhat paradoxical. One possible explanation may be that the permutation test is inefficient in small samples, relative to using the normal approximation to test the weak null, even with a conservative variance estimator. Overall, this simulation shows the importance of testing out ideas because our intuition can sometimes lead us astray.
+:::
+
+## Question 7
+### 7a)
+
+We begin by differentiating with respect to both $\alpha, \beta$ and setting the two equations equal to 0
+$$
+\begin{aligned}
+\frac{\partial}{\partial\alpha}\biggr[\frac{1}{2n}\sum_{i = 1}^n (Y_i - \alpha - \beta A_i)^2\biggr] &= -\frac{1}{n}\sum_{i = 1}^n(Y_i - \alpha - \beta A_i) = 0 \\
+\frac{\partial}{\partial\beta}\biggr[\frac{1}{2n}\sum_{i = 1}^n(Y_i - \alpha - \beta A_i)^2\biggr] &= -\frac{1}{n}\sum_{i = 1}^n A_i(Y_i - \alpha - \beta A_i) = 0
+\end{aligned}
+$$
+Since $\bar A = \frac{m}{n}$, the first equation implies that 
+$$
+\bar Y - \alpha - \beta\bar A = 0 \implies \alpha = \bar Y - \frac{m}{n}\beta
+$$
+
+Substituting this equation into the second equation we have that 
+
+$$
+\begin{aligned}
+0 &= \frac{m}{n} \bar Y_1- \frac{m}{n}\alpha - \frac{m}{n}\beta \implies \\ 
+0 &= \bar Y_1- \alpha - \beta \implies \\ 
+0 &= \bar Y_1 - \biggr(\bar Y - \frac{m}{n}\beta\biggr) - \beta \implies \\
+\frac{n-m}{n}\beta &= \sum_{i = 1}^n A_i\frac{Y_i}{m} - \frac{Y_i}{n} \implies \\
+\frac{n-m}{n}\beta &= \sum_{i = 1}^n \frac{A_iY_i}{m} - \frac{A_iY_i + (1-A_i)Y_i}{n} \implies \\
+\frac{n-m}{n}\beta &= \sum_{i = 1}^n \frac{A_iY_i(n-m) -  m(1-A_i)Y_i}{nm} \implies \\
+\beta &= \frac{n}{n-m}\sum_{i = 1}^n \frac{A_iY_i(n-m) -  m(1-A_i)Y_i}{nm}\implies  \\
+\beta &= \frac{1}{m}\sum_{i = 1}^n A_iY_i - \frac{1}{n-m}\sum_{i = 1}^n(1-A_i)Y_i \implies \\
+\beta &= \bar Y_1 - \bar Y_0
+\end{aligned}
+$$
+
+Using this result we then have that 
+$$
+\begin{aligned}
+\alpha &= \bar Y - \frac{m}{n}\beta \\
+&= \bar Y - \frac{m}{n}(\bar Y_1 - \bar Y_0) \\
+&= \biggr(\frac{m}{n}\bar Y_1 + \frac{n-m}{n}\bar Y_0\biggr) - \frac{m}{n}(\bar Y_1 - \bar Y_0) \\
+&= \bar Y_0
+\end{aligned}
+$$
+
+:::{.callout-note title="Answer Summary"}
+$$
+\boxed{
+\begin{aligned}
+\alpha &= \bar Y_0 \\
+\beta &= \bar Y_1 - \bar Y_0
+\end{aligned}
+}
+$$
+:::
+
+### 7b) 
+
+:::{.callout-note title="Answer Summary"}
+Yes, $\beta$ is a valid estimator for the ATE. It is in fact exactly the difference in means estimator, which we know from the previous questions is unbiased for the average treatment effect. This suggests that under a conditionally randomized expiriment, we can use a saturated linear model, where the slope is the exact difference in means estimator which will consistently estimate the ATE.
+:::
+
+
